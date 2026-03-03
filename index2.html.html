@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎭 TEBAK GAYA · charades emoji</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(145deg, #1a2639 0%, #2e3b4e 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .game-container {
+            max-width: 650px;
+            width: 100%;
+            background: rgba(255, 246, 225, 0.95);
+            backdrop-filter: blur(6px);
+            border-radius: 70px 70px 50px 50px;
+            padding: 30px 25px 40px;
+            box-shadow: 0 35px 40px -15px #0b0f1a, inset 0 0 0 2px #eedbba;
+            border: 3px solid #caa66b;
+        }
+        h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            color: #ffefb9;
+            text-shadow: 5px 5px 0 #2e4c5f, 7px 7px 0 #030712;
+            text-align: center;
+            letter-spacing: -0.5px;
+            margin-bottom: 15px;
+        }
+        h1 span {
+            background: #f8cf8c;
+            font-size: 2.2rem;
+            padding: 0 30px;
+            border-radius: 70px;
+            color: #1e3b3c;
+            text-shadow: none;
+            display: inline-block;
+            box-shadow: inset 0 -6px 0 #bd974b;
+            margin-top: 5px;
+        }
+        .game-box {
+            background: #2d4b5a;
+            border-radius: 70px;
+            padding: 30px 20px;
+            border: 3px solid #f5cf91;
+            box-shadow: inset 0 -7px 0 #1b303a, 0 18px 25px -12px black;
+        }
+        .emoji-display {
+            background: #fff6df;
+            border-radius: 80px;
+            padding: 45px 20px;
+            text-align: center;
+            font-size: 6.5rem;
+            letter-spacing: 18px;
+            word-break: break-all;
+            border: 5px solid #e7b56c;
+            box-shadow: inset 0 -10px 0 #be9a58;
+            margin-bottom: 30px;
+            min-height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            line-height: 1.4;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+            margin: 20px 0 25px;
+        }
+        .option-btn {
+            background: #faeac6;
+            border: 4px solid #7b5d36;
+            padding: 22px 8px;
+            border-radius: 60px;
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: #11212e;
+            cursor: pointer;
+            box-shadow: 0 10px 0 #5f442a, 0 12px 18px #00000060;
+            transition: 0.06s linear;
+            text-align: center;
+            word-break: break-word;
+        }
+        .option-btn:active {
+            transform: translateY(8px);
+            box-shadow: 0 3px 0 #4f3821, 0 10px 18px black;
+        }
+        .option-btn.selected-true {
+            background: #b0dab0;
+            border-color: #1f7322;
+            box-shadow: 0 5px 0 #16631a;
+            transform: translateY(5px);
+            pointer-events: none;
+        }
+        .option-btn.selected-false {
+            background: #e9b6b6;
+            border-color: #a53f3f;
+            box-shadow: 0 5px 0 #832e2e;
+            transform: translateY(5px);
+            pointer-events: none;
+            text-decoration: line-through 3px #631c1c;
+        }
+        .feedback-area {
+            font-size: 2.3rem;
+            font-weight: 600;
+            text-align: center;
+            background: #1a3338;
+            color: #ffdcaa;
+            padding: 20px;
+            border-radius: 70px;
+            border: 3px solid #dcb06b;
+            margin: 20px 0 15px;
+        }
+        .reset-btn {
+            background: #efc58b;
+            border: none;
+            padding: 20px 30px;
+            border-radius: 70px;
+            font-weight: bold;
+            font-size: 1.9rem;
+            cursor: pointer;
+            box-shadow: 0 9px 0 #876e40;
+            border: 2px solid #f7dbaa;
+            transition: 0.06s;
+            width: 100%;
+            margin-top: 15px;
+        }
+        .reset-btn:active {
+            transform: translateY(7px);
+            box-shadow: 0 3px 0 #6e5533;
+        }
+        .footer {
+            text-align: center;
+            color: #d6c09d;
+            margin-top: 25px;
+            font-size: 1.4rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎭 TEBAK <span>GAYA</span></h1>
+        <div class="game-box">
+            <div class="emoji-display" id="emojiDisplay">🐧🎤</div>
+            <div class="options-grid" id="optionsGrid"></div>
+            <div class="feedback-area" id="feedbackMsg">✨ pilih jawaban yang benar!</div>
+            <button class="reset-btn" id="resetGameBtn">🎲 acak pertanyaan</button>
+        </div>
+        <div class="footer">❤️ tebak profesi dari emoji</div>
+    </div>
+
+    <script>
+        (function() {
+            // Bank pertanyaan: emoji, jawaban benar, pilihan
+            const questions = [
+                { emoji: "🐧🎤", correct: "PENYANYI", options: ["PENYANYI", "PELUKIS", "DOKTER", "KOKI"] },
+                { emoji: "🐟🌊", correct: "NELAYAN", options: ["NELAYAN", "PELAYAN", "PERENANG", "PENYELAM"] },
+                { emoji: "🍕👨‍🍳", correct: "KOKI", options: ["KOKI", "PIZZA", "WAITER", "PEDAGANG"] },
+                { emoji: "⚽🥅", correct: "PEMAIN BOLA", options: ["PEMAIN BOLA", "WASIT", "PELATIH", "KIPER"] },
+                { emoji: "✈️👩‍✈️", correct: "PILOT", options: ["PILOT", "PRAMUGARI", "MASINIS", "SOPIR"] },
+                { emoji: "🎨🖌️", correct: "PELUKIS", options: ["PELUKIS", "PEMATUNG", "DESAINER", "KRITIKUS"] },
+                { emoji: "🌾🚜", correct: "PETANI", options: ["PETANI", "KEBUN", "NELAYAN", "BERKEBUN"] },
+                { emoji: "🦷👩‍⚕️", correct: "DOKTER GIGI", options: ["DOKTER GIGI", "DOKTER", "BIDAN", "PERAWAT"] },
+                { emoji: "🚒🔥", correct: "PEMADAM KEBAKARAN", options: ["PEMADAM KEBAKARAN", "POLISI", "SATUAN", "DAMKAR"] },
+                { emoji: "💻👨‍💻", correct: "PROGRAMMER", options: ["PROGRAMMER", "DESAINER", "GAMER", "SISTEM ANALIS"] }
+            ];
+
+            let currentQuestion = null;      // objek pertanyaan yang tampil
+            let locked = false;              // kunci setelah jawab
+
+            const emojiEl = document.getElementById('emojiDisplay');
+            const optionsGrid = document.getElementById('optionsGrid');
+            const feedbackEl = document.getElementById('feedbackMsg');
+            const resetBtn = document.getElementById('resetGameBtn');
+
+            // fungsi acak array (Fisher-Yates)
+            function shuffleArray(arr) {
+                for (let i = arr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                }
+                return arr;
+            }
+
+            // mengambil pertanyaan acak
+            function pickRandomQuestion() {
+                const randomIndex = Math.floor(Math.random() * questions.length);
+                return { ...questions[randomIndex] };  // salin
+            }
+
+            // merender ulang berdasarkan currentQuestion
+            function renderQuestion() {
+                if (!currentQuestion) return;
+
+                emojiEl.textContent = currentQuestion.emoji;
+                // acak pilihan agar tidak monoton
+                const shuffledOptions = shuffleArray([...currentQuestion.options]);
+
+                // bersihkan grid
+                optionsGrid.innerHTML = '';
+                locked = false;
+                feedbackEl.innerHTML = '🤔 coba tebak!';
+
+                shuffledOptions.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.textContent = opt;
+                    btn.dataset.option = opt;
+
+                    btn.addEventListener('click', function(e) {
+                        if (locked) return;  // sudah menjawab
+
+                        const selected = this.dataset.option;
+                        const correct = currentQuestion.correct;
+
+                        // nonaktifkan semua tombol dan beri warna
+                        const allBtns = document.querySelectorAll('.option-btn');
+                        allBtns.forEach(b => {
+                            b.style.pointerEvents = 'none';
+                            if (b.dataset.option === correct) {
+                                b.classList.add('selected-true');
+                            } else if (b.dataset.option === selected && selected !== correct) {
+                                b.classList.add('selected-false');
+                            }
+                        });
+
+                        // tampilkan feedback
+                        if (selected === correct) {
+                            feedbackEl.innerHTML = '🎉 BENAR! mantap jiwa!';
+                        } else {
+                            feedbackEl.innerHTML = `😬 ups ... jawaban: ${correct}`;
+                        }
+                        locked = true;
+                    });
+
+                    optionsGrid.appendChild(btn);
+                });
+            }
+
+            // memuat pertanyaan baru (acak)
+            function loadNewQuestion() {
+                currentQuestion = pickRandomQuestion();
+                renderQuestion();
+            }
+
+            // event reset
+            resetBtn.addEventListener('click', function() {
+                loadNewQuestion();
+            });
+
+            // inisialisasi pertama
+            loadNewQuestion();
+        })();
+    </script>
+</body>
+</html>
